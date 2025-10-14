@@ -59,7 +59,10 @@ libero_suites = [
     "libero_goal",
     "libero_90",
     "libero_10",
-    "libero_10_diff_obj"
+    "libero_10_diff_obj",
+    "libero_10_random",
+    "custom_eval_easy",
+    "custom_eval_hard"
 ]
 
 
@@ -164,8 +167,9 @@ class Benchmark(abc.ABC):
             self.tasks[i].problem_folder,
             self.tasks[i].init_states_file,
         )
-        # init_states = torch.load(init_states_path)
-        init_states = torch.load(init_states_path, weights_only=False) # for torch 2.6
+        init_states = torch.load(init_states_path)
+        print(f"loading init states for {self.name} from {init_states_path}")
+        # init_states = torch.load(init_states_path, weights_only=False) # for torch 2.6
         return init_states
 
     def set_task_embs(self, task_embs):
@@ -227,6 +231,74 @@ class LIBERO_10_diff_obj(Benchmark):
     def __init__(self, task_order_index=0):
         super().__init__(task_order_index=task_order_index)
         self.name = "libero_10_diff_obj"
+        self._make_benchmark() 
+    
+    def _make_benchmark(self):
+        tasks = list(task_maps[self.name].values())
+        self.tasks = tasks
+        # not using task orders as of now (we want to be able to control the curriculum, but do this later )
+        # print(f"[info] using task orders {task_orders[self.task_order_index]}")
+        # self.tasks = [tasks[i] for i in task_orders[self.task_order_index]]
+        self.n_tasks = len(self.tasks)
+
+
+@register_benchmark
+class LIBERO_10_random(Benchmark):
+    """
+    LIBERO 10 benchmark with:
+    - randomized object rotation, location
+    - background (3 in-distribution)
+    - receptacle distribution (2 - 3 per task)
+    """
+    def __init__(self, task_order_index=0):
+        super().__init__(task_order_index=task_order_index)
+        self.name = "libero_10_random"
+        self._make_benchmark() 
+    
+    def _make_benchmark(self):
+        tasks = list(task_maps[self.name].values())
+        self.tasks = tasks
+        # not using task orders as of now (we want to be able to control the curriculum, but do this later )
+        # print(f"[info] using task orders {task_orders[self.task_order_index]}")
+        # self.tasks = [tasks[i] for i in task_orders[self.task_order_index]]
+        self.n_tasks = len(self.tasks)
+
+
+@register_benchmark
+class Custom_Eval_Easy(Benchmark):
+    """
+    LIBERO 10 benchmark with: 
+    - held out receptacle distribution (1 for each task)
+    - distractor objects (1 - 3 depending on task complexity)
+    - held out background (floor background)
+    """
+    def __init__(self, task_order_index=0):
+        super().__init__(task_order_index=task_order_index)
+        self.name = "custom_eval_easy"
+        self._make_benchmark() 
+    
+    def _make_benchmark(self):
+        tasks = list(task_maps[self.name].values())
+        self.tasks = tasks
+        # not using task orders as of now (we want to be able to control the curriculum, but do this later )
+        # print(f"[info] using task orders {task_orders[self.task_order_index]}")
+        # self.tasks = [tasks[i] for i in task_orders[self.task_order_index]]
+        self.n_tasks = len(self.tasks)
+
+@register_benchmark
+class Custom_Eval_Hard(Benchmark):
+    """
+    LIBERO 10 benchmark with: 
+    - novel type 2 reasoning tasks
+        - sorting, cause/effect, occlusions
+    - OOD custom objects
+    - novel dexterous actions 
+    - distractor objects (1 - 3 depending on task complexity)
+    - all backgrounds including held out background (floor background)
+    """
+    def __init__(self, task_order_index=0):
+        super().__init__(task_order_index=task_order_index)
+        self.name = "custom_eval_hard"
         self._make_benchmark() 
     
     def _make_benchmark(self):

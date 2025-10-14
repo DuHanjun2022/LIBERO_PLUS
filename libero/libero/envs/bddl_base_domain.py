@@ -626,6 +626,7 @@ class BDDLBaseDomain(SingleArmEnv):
                         rotation=self.objects_dict[object_name].rotation,
                         rotation_axis=self.objects_dict[object_name].rotation_axis,
                         reference_pos=self.workspace_offset,
+                        yaw_rotation=yaw_rotation
                     )
                     self.placement_initializer.append_sampler(region_sampler)
             if state[0] in ["open", "close"]:

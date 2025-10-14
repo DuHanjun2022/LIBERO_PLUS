@@ -101,6 +101,7 @@ class MultiRegionRandomSampler(ObjectPositionSampler):
         Raises:
             ValueError: [Invalid rotation axis]
         """
+
         if self.rotation is None:
             rot_angle = np.random.uniform(high=2 * np.pi, low=0)
         elif isinstance(self.rotation, collections.abc.Iterable):
@@ -166,6 +167,18 @@ class MultiRegionRandomSampler(ObjectPositionSampler):
                 base_offset
             )
 
+        OFFSETS = {
+            "basket_1": 0.1,
+            "porcelain_mug_1": 0.01,
+            "white_yellow_mug_1": 0.01,
+            "red_coffee_mug_1": 0.01,
+            "flat_stove_1": 0.08,
+            "moka_pot_1": 0.01,
+            "moka_pot_2": 0.01,
+            "moka_pot_3": 0.01,
+        }
+
+
         # Sample pos and quat for all objects assigned to this sampler
         for obj in self.mujoco_objects:
             # First make sure the currently sampled object hasn't already been sampled
@@ -173,10 +186,11 @@ class MultiRegionRandomSampler(ObjectPositionSampler):
                 obj.name not in placed_objects
             ), "Object '{}' has already been sampled!".format(obj.name)
 
-            horizontal_radius = obj.horizontal_radius
+            horizontal_radius = obj.horizontal_radius + 0.03
             bottom_offset = obj.bottom_offset
+
             success = False
-            for i in range(5000):  # 5000 retries
+            for i in range(20000):  # 5000 retries --> increase to 10_000
                 self.idx = np.random.randint(self.num_ranges)
                 object_x = self._sample_x(horizontal_radius) + base_offset[0]
                 object_y = self._sample_y(horizontal_radius) + base_offset[1]
@@ -187,10 +201,15 @@ class MultiRegionRandomSampler(ObjectPositionSampler):
                 # objects cannot overlap
                 location_valid = True
                 if self.ensure_valid_placement:
+                    if obj.name in OFFSETS:
+                        horizontal_radius += OFFSETS[obj.name]
                     for (x, y, z), _, other_obj in placed_objects.values():
+                        other_obj_rad = other_obj.horizontal_radius
+                        if other_obj.name in OFFSETS:
+                            other_obj_rad += OFFSETS[other_obj.name]
                         if (
                             np.linalg.norm((object_x - x, object_y - y))
-                            <= other_obj.horizontal_radius + horizontal_radius
+                            <= other_obj_rad + horizontal_radius
                         ) and (
                             object_z - z <= other_obj.top_offset[-1] - bottom_offset[-1]
                         ):
@@ -212,6 +231,7 @@ class MultiRegionRandomSampler(ObjectPositionSampler):
                     break
 
             if not success:
+                print("Failed to place:", obj.name, "after", 10_000, "tries")
                 raise RandomizationError("Cannot place all objects ):")
 
         return placed_objects

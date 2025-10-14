@@ -18,7 +18,7 @@ from libero.libero.benchmark import (
     Task,
 )
 
-from custom_suite_task_map import custom_libero_task_map
+from libero.libero.benchmark.libero_suite_task_map import libero_task_map
 
 """
 usage: 
@@ -41,33 +41,34 @@ print(b.get_task_names())
 
 generate_pddl = False
 generate_init_states = True
-suite_name = "libero_10_diff_obj"
+suite_name = "libero_10_random"
+overwrite = False
 
-num_init_states = 50
-num_pruned_states = 20
+num_init_states = 100
+num_pruned_states = 50
 
 task_map = {}
 
-class LIBERO_10_diff_obj(Benchmark):
-    def __init__(self, task_order_index=0):
-        super().__init__(task_order_index=task_order_index)
-        self.name = "libero_10_diff_obj"
-        self._make_benchmark() 
+# class LIBERO_10_diff_obj(Benchmark):
+#     def __init__(self, task_order_index=0):
+#         super().__init__(task_order_index=task_order_index)
+#         self.name = "libero_10_diff_obj"
+#         self._make_benchmark() 
     
-    def _make_benchmark(self):
-        tasks = list(task_map.values())
-        self.tasks = tasks
-        # not using task orders as of now (we want to be able to control the curriculum, but do this later )
-        # print(f"[info] using task orders {task_orders[self.task_order_index]}")
-        # self.tasks = [tasks[i] for i in task_orders[self.task_order_index]]
-        self.n_tasks = len(self.tasks)
+#     def _make_benchmark(self):
+#         tasks = list(task_map.values())
+#         self.tasks = tasks
+#         # not using task orders as of now (we want to be able to control the curriculum, but do this later )
+#         # print(f"[info] using task orders {task_orders[self.task_order_index]}")
+#         # self.tasks = [tasks[i] for i in task_orders[self.task_order_index]]
+#         self.n_tasks = len(self.tasks)
 
 
 def register_custom_libero(suite_name):
     """Register a new benchmark and optionally generate init states."""
 
-    assert suite_name in custom_libero_task_map, f"Could not find custom suite {suite_name} in custom_suite_task_map.py"
-    tasks = custom_libero_task_map[suite_name]
+    assert suite_name in libero_task_map, f"Could not find custom suite {suite_name} in libero_task_map.py"
+    tasks = libero_task_map[suite_name]
     
     global task_map
     task_map = {}
@@ -76,6 +77,7 @@ def register_custom_libero(suite_name):
     
     for task in tqdm(tasks, "All tasks", position=0):
         language = grab_language_from_filename(task + ".bddl")
+        print(language)
         task_map[task] = Task(
             name=task,
             language=language,
@@ -85,13 +87,17 @@ def register_custom_libero(suite_name):
             init_states_file=f"{task}.pruned_init",
         )
 
+        # print(f"{os.path.join(init_save_dir, suite_name, task + '.init')} exists?: {os.path.exists(os.path.join(init_save_dir, suite_name, task + '.init'))}")
         # generate init states if it doesn't exist
-        if not os.path.exists(os.path.join(init_save_dir, suite_name, task + ".init")):
+        if overwrite:
+            print(f"Resampling init file for {os.path.join(init_save_dir, suite_name, task + '.init')} now ...")
+            generate_init_states_for_task(task, suite_name, num_init_states, num_pruned_states)
+        elif not os.path.exists(os.path.join(init_save_dir, suite_name, task + ".init")):
             print(f"path doesn't exist: {os.path.join(init_save_dir, suite_name, task + '.init')}, generating init file now ...")
             generate_init_states_for_task(task, suite_name, num_init_states, num_pruned_states)
     
     # Register benchmark class
-    register_benchmark(LIBERO_10_diff_obj)
+    # register_benchmark(LIBERO_10_diff_obj)
 
 
 
@@ -119,7 +125,6 @@ def generate_init_states_for_task(task, suite_name, num_init_states=100, num_pru
 
     init_states = []
     for i in tqdm(range(num_init_states), desc=f"Task: {task}\n"[:75], position=1, leave=False):
-        env.seed(i)
         obs = env.reset()
         init_state = env.sim.get_state().flatten()
         init_states.append(init_state)
@@ -161,4 +166,4 @@ def generate_init_states_for_task(task, suite_name, num_init_states=100, num_pru
 
 
 
-register_custom_libero("libero_10_diff_obj")
+register_custom_libero(suite_name)

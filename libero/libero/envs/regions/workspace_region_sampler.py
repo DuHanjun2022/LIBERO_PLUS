@@ -16,7 +16,8 @@ class TableRegionSampler(MultiRegionRandomSampler):
         ensure_object_boundary_in_range=True,
         ensure_valid_placement=True,
         reference_pos=(0, 0, 0),
-        z_offset=0.01,
+        z_offset=0.05,
+        yaw_rotation=None
     ):
         name = f"table-middle-{object_name}"
         super().__init__(
@@ -31,6 +32,7 @@ class TableRegionSampler(MultiRegionRandomSampler):
             reference_pos,
             z_offset,
         )
+        self.yaw_rotation = yaw_rotation
 
     def _sample_quat(self):
         """
@@ -41,12 +43,24 @@ class TableRegionSampler(MultiRegionRandomSampler):
         Raises:
             ValueError: [Invalid rotation axis]
         """
+
+        # get yaw rotation: no error checking atm
+        if self.yaw_rotation:
+            yaw_rot_angle = np.random.uniform(
+                high=max(self.yaw_rotation), low=min(self.yaw_rotation)
+            )
+            yaw_rot_quat = np.array([np.sin(yaw_rot_angle / 2), 0, 0, np.cos(yaw_rot_angle / 2)])
+        else:
+            yaw_rot_quat = np.array([0, 0, 0, 1])
+
+
         if self.rotation is None:
             rot_angle = np.random.uniform(high=2 * np.pi, low=0)
         elif isinstance(self.rotation, tuple) or isinstance(self.rotation, list):
             rot_angle = np.random.uniform(
                 high=max(self.rotation), low=min(self.rotation)
             )
+
         # multiple rotations
         elif isinstance(self.rotation, dict):
             quat = np.array(
@@ -74,17 +88,17 @@ class TableRegionSampler(MultiRegionRandomSampler):
 
                 quat = quat_multiply(current_quat, quat)
 
-            return quat
+            return quat_multiply(quat, yaw_rot_quat)
         else:
             rot_angle = self.rotation
 
         # Return angle based on axis requested
         if self.rotation_axis == "x":
-            return np.array([np.sin(rot_angle / 2), 0, 0, np.cos(rot_angle / 2)])
+            base_quat = np.array([np.sin(rot_angle / 2), 0, 0, np.cos(rot_angle / 2)])
         elif self.rotation_axis == "y":
-            return np.array([0, np.sin(rot_angle / 2), 0, np.cos(rot_angle / 2)])
+            base_quat = np.array([0, np.sin(rot_angle / 2), 0, np.cos(rot_angle / 2)])
         elif self.rotation_axis == "z":
-            return np.array([0, 0, np.sin(rot_angle / 2), np.cos(rot_angle / 2)])
+            base_quat = np.array([0, 0, np.sin(rot_angle / 2), np.cos(rot_angle / 2)])
         else:
             # Invalid axis specified, raise error
             raise ValueError(
@@ -92,6 +106,8 @@ class TableRegionSampler(MultiRegionRandomSampler):
                     self.rotation_axis
                 )
             )
+
+        return quat_multiply(base_quat, yaw_rot_quat)
 
 
 class Libero100TableRegionSampler(MultiRegionRandomSampler):
@@ -107,6 +123,7 @@ class Libero100TableRegionSampler(MultiRegionRandomSampler):
         ensure_valid_placement=True,
         reference_pos=(0, 0, 0),
         z_offset=0.01,
+        yaw_rotation=None,
     ):
         name = f"table-middle-{object_name}"
         super().__init__(
@@ -121,6 +138,7 @@ class Libero100TableRegionSampler(MultiRegionRandomSampler):
             reference_pos,
             z_offset,
         )
+        self.yaw_rotation = yaw_rotation
 
     def _sample_quat(self):
         """
@@ -131,12 +149,24 @@ class Libero100TableRegionSampler(MultiRegionRandomSampler):
         Raises:
             ValueError: [Invalid rotation axis]
         """
+
+        # get yaw rotation: no error checking atm
+        if self.yaw_rotation:
+            yaw_rot_angle = np.random.uniform(
+                high=max(self.yaw_rotation), low=min(self.yaw_rotation)
+            )
+            yaw_rot_quat = np.array([np.sin(yaw_rot_angle / 2), 0, 0, np.cos(yaw_rot_angle / 2)])
+        else:
+            yaw_rot_quat = np.array([0, 0, 0, 1])
+
+
         if self.rotation is None:
             rot_angle = np.random.uniform(high=2 * np.pi, low=0)
         elif isinstance(self.rotation, tuple) or isinstance(self.rotation, list):
             rot_angle = np.random.uniform(
                 high=max(self.rotation), low=min(self.rotation)
             )
+
         # multiple rotations
         elif isinstance(self.rotation, dict):
             quat = np.array(
@@ -164,17 +194,17 @@ class Libero100TableRegionSampler(MultiRegionRandomSampler):
 
                 quat = quat_multiply(current_quat, quat)
 
-            return quat
+            return quat_multiply(quat, yaw_rot_quat)
         else:
             rot_angle = self.rotation
 
         # Return angle based on axis requested
         if self.rotation_axis == "x":
-            return np.array([np.sin(rot_angle / 2), 0, 0, np.cos(rot_angle / 2)])
+            base_quat = np.array([np.sin(rot_angle / 2), 0, 0, np.cos(rot_angle / 2)])
         elif self.rotation_axis == "y":
-            return np.array([0, np.sin(rot_angle / 2), 0, np.cos(rot_angle / 2)])
+            base_quat = np.array([0, np.sin(rot_angle / 2), 0, np.cos(rot_angle / 2)])
         elif self.rotation_axis == "z":
-            return np.array([0, 0, np.sin(rot_angle / 2), np.cos(rot_angle / 2)])
+            base_quat = np.array([0, 0, np.sin(rot_angle / 2), np.cos(rot_angle / 2)])
         else:
             # Invalid axis specified, raise error
             raise ValueError(
@@ -182,6 +212,8 @@ class Libero100TableRegionSampler(MultiRegionRandomSampler):
                     self.rotation_axis
                 )
             )
+
+        return quat_multiply(base_quat, yaw_rot_quat)
 
 
 class ObjectBasedSampler(MultiRegionRandomSampler):

@@ -164,7 +164,7 @@ def generate_task_bddl(init_state: TaskInitState, task_id: int):
 def generate_init_class(data, add_rot, background):
     
     if add_rot:
-        rot_bounds=(-np.pi, np.pi)
+        rot_bounds=(0, 2 * np.pi)
     else:
         rot_bounds=(0, 0)
 
@@ -179,9 +179,12 @@ def generate_init_class(data, add_rot, background):
     )
 
     manipulated_obj = []
-    manipulated_obj_names = ["alphabet_soup", "tomato_sauce"]
+    manipulated_obj_names = ["milk"]
+    # manipulated_obj_names = ["alphabet_soup", "tomato_sauce"]
+    
     distractor_obj = []
-    distractor_obj_names = ["milk", "cream_cheese", "orange_juice", "butter", "ketchup"]
+    distractor_obj_names = []
+    # distractor_obj_names = ["milk", "cream_cheese", "orange_juice", "butter", "ketchup"]
 
     for name in manipulated_obj_names:
         obj = ObjectInitState(
@@ -216,43 +219,58 @@ def generate_init_class(data, add_rot, background):
 
     return task
 
-receptacle_locations = {
-    "receptacle_left": {
-        "centroid": [0.02, 0.23],  # 0.08 basket buffer
-        "loc_bounds": [0.18, 0.05],
-        "obj_centroid": [-0.025, -0.1],
-        "obj_loc_bounds": [0.175, 0.2],
+# receptacle_locations = {
+#     "receptacle_left": {
+#         "centroid": [0.02, 0.23],  # 0.08 basket buffer
+#         "loc_bounds": [0.18, 0.05],
+#         "obj_centroid": [-0.025, -0.1],
+#         "obj_loc_bounds": [0.175, 0.2],
 
-    },
-    "receptacle_right": {
-        "centroid": [0.02, -0.23],
-        "loc_bounds": [0.18, 0.05],
-        "obj_centroid": [-0.025, 0.1],
-        "obj_loc_bounds": [0.175, 0.2],
-    },
-    "receptacle_back": {
-        "centroid": [-0.15, 0.0],  # 0.1 basket buffer
-        "loc_bounds": [0.05, 0.23],
-        "obj_centroid": [0.075, 0.0],
-        "obj_loc_bounds": [0.075, 0.3],
-    },
-    "receptacle_front": {
-        "centroid": [0.1, 0.0],
-        "loc_bounds": [0.05, 0.23],
-        "obj_centroid": [-0.125, 0.0],
-        "obj_loc_bounds": [0.075, 0.3],
+#     },
+#     "receptacle_right": {
+#         "centroid": [0.02, -0.23],
+#         "loc_bounds": [0.18, 0.05],
+#         "obj_centroid": [-0.025, 0.1],
+#         "obj_loc_bounds": [0.175, 0.2],
+#     },
+#     "receptacle_back": {
+#         "centroid": [-0.15, 0.0],  # 0.1 basket buffer
+#         "loc_bounds": [0.05, 0.23],
+#         "obj_centroid": [0.075, 0.0],
+#         "obj_loc_bounds": [0.075, 0.3],
+#     },
+#     "receptacle_front": {
+#         "centroid": [0.1, 0.0],
+#         "loc_bounds": [0.05, 0.23],
+#         "obj_centroid": [-0.125, 0.0],
+#         "obj_loc_bounds": [0.075, 0.3],
+#     }
+# }
+
+# we can go up to (-0.2, 0.15), (-0.3, 0.3) for all rooms
+
+receptacle_locations = {
+    "dest_center": {
+        "centroid": [0.0, 0.2],
+        "loc_bounds": [0.01, 0.01],
+        "obj_centroid": [-0.2, 0.0], 
+        "obj_loc_bounds": [0.01, 0.01],
     }
 }
 
-backgrounds = ["living_room", "kitchen", "study", "floor"] # should we add Coffee?
+backgrounds = ["living_room", "kitchen", "study"] #, "floor"] # should we add Coffee?
+# create separate task suite for eval set?
+# backgrounds = ["kitchen"] # should we add Coffee?
 
 id_task_mapping = {}
 
 for i, background in enumerate(backgrounds):
-    for j, add_rot in enumerate([False]): # TODO: add rotation, fix bug in LIBERO
+    for j, add_rot in enumerate([True]): # TODO: add rotation, fix bug in LIBERO
+        j = 1
         for k, (task_name, data) in enumerate(receptacle_locations.items()):
 
             task_id =  10000 + i * 1000 + j * 100 + k 
+            task_id =  9999
             # we create task id 10_000 is for the current libero task, thousands are for background, hundreds is to indicate rot, k is receptacle loc
 
             id_task_mapping[task_id] = f"{background}_rot_{add_rot}_{task_name}"
@@ -262,7 +280,10 @@ for i, background in enumerate(backgrounds):
 
 
             generate_task_bddl(task, task_id)
+            exit(0)
 
 
-        print(f"\nTask ID mapping:\n{id_task_mapping}")
+
+
+print(f"\nTask ID mapping:\n{id_task_mapping}")
 
