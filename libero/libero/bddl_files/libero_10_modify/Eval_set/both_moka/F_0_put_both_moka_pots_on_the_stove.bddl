@@ -1,37 +1,37 @@
-(define (problem LIBERO_Living_Room_Tabletop_Manipulation)
+(define (problem LIBERO_Floor_Manipulation)
   (:domain robosuite)
   (:language put both moka pots on the stove)
     (:regions
       (flat_stove_init_region
-          (:target living_room_table)
+          (:target floor)
           (:ranges (
-              (-0.4 -0.2 -0.05 0.2)
+              (-0.2 -0.3 -0.15 0.3)
             )
           )
           (:yaw_rotation (
-              (0 3.14)
+              (0.0 6.28)
             )
           )
       )
       (moka_pot_right_init_region
-          (:target living_room_table)
+          (:target floor)
           (:ranges (
-              (-0.19999999999999998 -0.3 0.15 0.3)
+              (0.08 0.05 0.15 0.3)
             )
           )
           (:yaw_rotation (
-              (0 6.283185307179586)
+              (0.0 6.28)
             )
           )
       )
       (moka_pot_left_init_region
-          (:target living_room_table)
+          (:target floor)
           (:ranges (
-              (-0.19999999999999998 -0.3 0.15 0.3)
+              (0.08 -0.3 0.15 -0.05)
             )
           )
           (:yaw_rotation (
-              (0 6.283185307179586)
+              (0.0 6.28)
             )
           )
       )
@@ -41,8 +41,8 @@
     )
 
   (:fixtures
+    floor - floor
     flat_stove_1 - flat_stove
-    living_room_table - living_room_table
   )
 
   (:objects
@@ -56,9 +56,9 @@
   )
 
   (:init
-    (On flat_stove_1 living_room_table_flat_stove_init_region)
-    (On moka_pot_1 living_room_table_moka_pot_right_init_region)
-    (On moka_pot_2 living_room_table_moka_pot_left_init_region)
+    (On flat_stove_1 floor_flat_stove_init_region)
+    (On moka_pot_1 floor_moka_pot_right_init_region)
+    (On moka_pot_2 floor_moka_pot_left_init_region)
     (Turnon flat_stove_1)
   )
 
