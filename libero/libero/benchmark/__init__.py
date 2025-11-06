@@ -61,6 +61,8 @@ libero_suites = [
     "libero_10",
     "libero_10_diff_obj",
     "libero_10_random",
+    "libero_10_train",  # Training tasks
+    "libero_10_eval",   # Evaluation tasks
     "custom_eval_easy",
     "custom_eval_hard"
 ]
@@ -243,7 +245,7 @@ class LIBERO_10_diff_obj(Benchmark):
 
 
 @register_benchmark
-class LIBERO_10_random(Benchmark):
+class LIBERO_10_train(Benchmark):
     """
     LIBERO 10 benchmark with:
     - randomized object rotation, location
@@ -252,7 +254,7 @@ class LIBERO_10_random(Benchmark):
     """
     def __init__(self, task_order_index=0):
         super().__init__(task_order_index=task_order_index)
-        self.name = "libero_10_random"
+        self.name = "libero_10_train"
         self._make_benchmark() 
     
     def _make_benchmark(self):
@@ -265,7 +267,7 @@ class LIBERO_10_random(Benchmark):
 
 
 @register_benchmark
-class Custom_Eval_Easy(Benchmark):
+class libero_10_eval(Benchmark):
     """
     LIBERO 10 benchmark with: 
     - held out receptacle distribution (1 for each task)
@@ -274,7 +276,7 @@ class Custom_Eval_Easy(Benchmark):
     """
     def __init__(self, task_order_index=0):
         super().__init__(task_order_index=task_order_index)
-        self.name = "custom_eval_easy"
+        self.name = "libero_10_eval"
         self._make_benchmark() 
     
     def _make_benchmark(self):

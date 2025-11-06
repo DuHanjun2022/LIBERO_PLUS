@@ -41,7 +41,7 @@ print(b.get_task_names())
 
 generate_pddl = False
 generate_init_states = True
-suite_name = "libero_10_random"
+suite_name = "libero_10_eval"
 overwrite = False
 
 num_init_states = 100
@@ -147,7 +147,7 @@ def generate_init_states_for_task(task, suite_name, num_init_states=100, num_pru
     # }
 
     # TODO: change to be for save directory and automatically
-    save_dir = f"/home/leisongao/LIBERO/libero/libero/init_files/{suite_name}"
+    save_dir = f"/home/whu/LIBERO_PLUS/libero/libero/init_files/{suite_name}"
     # save_dir = f"/home/leisongao/vlarl/LIBERO/libero/libero/./init_files/{suite_name}"
     
     os.makedirs(save_dir, exist_ok=True)
